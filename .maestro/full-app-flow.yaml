@@ -1,0 +1,185 @@
+# E2E Test: Full App Flow
+# Comprehensive test covering all major features
+#
+# Run: maestro test .maestro/full-app-flow.yaml
+
+appId: com.gymrx.app
+
+---
+# ================================================
+# FULL APP INTEGRATION TEST
+# ================================================
+
+- launchApp
+- waitForAnimationToEnd
+
+# ================================================
+# PHASE 1: Initial Setup
+# ================================================
+
+# Handle first-time setup
+- runFlow:
+    when:
+      visible: "Get Started"
+    commands:
+      - tapOn: "Get Started"
+      - waitForAnimationToEnd
+
+# Verify workouts loaded
+- assertVisible: "Your Workouts"
+
+# ================================================
+# PHASE 2: Browse Exercises
+# ================================================
+
+- tapOn: "Exercises"
+- waitForAnimationToEnd
+- assertVisible: "Search exercises"
+
+# Test search
+- tapOn: "Search exercises..."
+- inputText: "press"
+- waitForAnimationToEnd
+- assertVisible: "Bench Press"
+- tapOn: "✕"
+- hideKeyboard
+
+# ================================================
+# PHASE 3: Create Custom Exercise
+# ================================================
+
+- tapOn: "+"
+- waitForAnimationToEnd
+- assertVisible: "Create Exercise"
+
+# Fill in exercise details
+- tapOn: "Exercise name"
+- inputText: "Test Exercise"
+- hideKeyboard
+
+# Select category (if available)
+# Select body part (if available)
+
+# Cancel for now
+- tapOn: "Cancel"
+- assertVisible: "Search exercises"
+
+# ================================================
+# PHASE 4: View History (may be empty)
+# ================================================
+
+- tapOn: "History"
+- waitForAnimationToEnd
+- assertVisible: "History"
+
+# ================================================
+# PHASE 5: Start and Complete a Workout
+# ================================================
+
+- tapOn: "Workouts"
+- waitForAnimationToEnd
+
+# Start a workout
+- tapOn:
+    text: "▶"
+    index: 0
+- waitForAnimationToEnd
+
+# Verify on workout logging screen
+- assertVisible: "Complete Workout"
+
+# Fill in first exercise - set 1
+- tapOn:
+    text: "0"
+    index: 0
+- inputText: "135"
+- hideKeyboard
+
+# Verify no premature completion
+- assertNotVisible: "Workout Saved"
+
+# Fill in more sets if available
+- scrollUntilVisible:
+    element: "+ Add Set"
+    direction: DOWN
+
+# Complete the workout
+- scrollUntilVisible:
+    element: "Complete Workout"
+    direction: DOWN
+- tapOn: "Complete Workout"
+
+# Verify confirmation
+- assertVisible: "Complete Workout?"
+- tapOn: "Complete"
+
+# Verify success
+- assertVisible: "Workout Saved"
+- tapOn: "OK"
+
+# ================================================
+# PHASE 6: Verify Workout in History
+# ================================================
+
+- tapOn: "History"
+- waitForAnimationToEnd
+
+# Should now have at least one workout
+- assertNotVisible: "No workouts logged yet"
+
+# ================================================
+# PHASE 7: Create New Workout Template
+# ================================================
+
+- tapOn: "Workouts"
+- waitForAnimationToEnd
+
+# Create new workout
+- tapOn: "+"
+- waitForAnimationToEnd
+- assertVisible: "New Workout"
+
+- tapOn: "e.g., Push Day, Leg Day"
+- inputText: "E2E Test Workout"
+- hideKeyboard
+
+- tapOn: "Create"
+- waitForAnimationToEnd
+
+# Should be on edit workout screen
+- assertVisible: "Edit Workout"
+
+# Add an exercise
+- tapOn: "Add Exercise"
+- waitForAnimationToEnd
+- tapOn: "Search exercises..."
+- inputText: "Squat"
+- waitForAnimationToEnd
+- tapOn: "Squat"
+- waitForAnimationToEnd
+
+# Verify exercise added
+- assertVisible: "Squat"
+
+# Go back
+- tapOn:
+    text: "Workouts"
+
+# Verify new workout exists
+- assertVisible: "E2E Test Workout"
+
+# ================================================
+# PHASE 8: Cleanup - Delete Test Workout
+# ================================================
+
+- longPressOn: "E2E Test Workout"
+- assertVisible: "Delete Workout"
+- tapOn: "Delete"
+- waitForAnimationToEnd
+
+# Verify deleted
+- assertNotVisible: "E2E Test Workout"
+
+# ================================================
+# TEST COMPLETE
+# ================================================

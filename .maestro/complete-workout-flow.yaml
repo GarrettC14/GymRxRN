@@ -1,0 +1,102 @@
+# E2E Test: Complete Workout Flow
+# Tests the entire workflow from starting to completing a workout
+#
+# Prerequisites:
+# - Install Maestro: curl -Ls "https://get.maestro.mobile.dev" | bash
+# - Run: maestro test .maestro/complete-workout-flow.yaml
+
+appId: com.gymrx.app
+
+---
+# Full Workout Flow Test
+
+- launchApp
+- waitForAnimationToEnd
+
+# === SETUP: Get workouts if empty ===
+- runFlow:
+    when:
+      visible: "Get Started"
+    commands:
+      - tapOn: "Get Started"
+      - waitForAnimationToEnd
+      - assertVisible: "Push Day"
+
+# === TEST: Navigate and start workout ===
+- assertVisible: "Your Workouts"
+
+# Find and start a workout
+- runFlow:
+    when:
+      visible:
+        text: "▶"
+    commands:
+      - tapOn:
+          text: "▶"
+          index: 0
+      - waitForAnimationToEnd
+
+# === TEST: Verify workout logging screen ===
+- assertVisible: "Complete Workout"
+- assertVisible: "Cancel"
+
+# === TEST: Input weight for first set ===
+- tapOn:
+    text: "0"
+    index: 0
+- inputText: "135"
+- hideKeyboard
+
+# Verify no premature completion
+- assertNotVisible: "Workout Saved"
+- assertVisible: "Complete Workout"
+
+# === TEST: Input reps ===
+- tapOn:
+    text: "10"
+    index: 0
+- clearText
+- inputText: "8"
+- hideKeyboard
+
+# Verify still on workout screen
+- assertVisible: "Complete Workout"
+
+# === TEST: Add additional set ===
+- scrollUntilVisible:
+    element: "+ Add Set"
+    direction: DOWN
+- tapOn:
+    text: "+ Add Set"
+    index: 0
+- waitForAnimationToEnd
+
+# Fill in the new set
+- tapOn:
+    text: "0"
+    index: 0
+- inputText: "140"
+- hideKeyboard
+
+# === TEST: Complete workout with confirmation ===
+- scrollUntilVisible:
+    element: "Complete Workout"
+    direction: DOWN
+- tapOn: "Complete Workout"
+
+# Verify confirmation dialog
+- assertVisible: "Complete Workout?"
+- assertVisible: "Are you sure you want to finish"
+- assertVisible: "Keep Going"
+- assertVisible: "Complete"
+
+# Confirm completion
+- tapOn: "Complete"
+
+# === TEST: Verify success ===
+- assertVisible: "Workout Saved"
+- assertVisible: "Great job"
+- tapOn: "OK"
+
+# === TEST: Verify return to main screen ===
+- assertVisible: "Your Workouts"

@@ -1,0 +1,58 @@
+# E2E Test: Cancel Workout Flow
+# Tests canceling a workout in progress
+#
+# Run: maestro test .maestro/log-workout-cancel-flow.yaml
+
+appId: com.gymrx.app
+
+---
+# Test: Start a workout and cancel it
+
+- launchApp
+- waitForAnimationToEnd
+
+# Navigate to a workout
+- runFlow:
+    when:
+      visible: "Get Started"
+    commands:
+      - tapOn: "Get Started"
+      - waitForAnimationToEnd
+
+# Start a workout
+- runFlow:
+    when:
+      visible: "Push Day"
+    commands:
+      - tapOn:
+          text: "▶"
+          index: 0
+
+# Verify we're on the log workout screen
+- assertVisible: "Complete Workout"
+
+# Enter some data
+- tapOn:
+    id: "weight-input-0"
+- inputText: "200"
+
+# Test: Press Cancel
+- tapOn: "Cancel"
+
+# Verify discard confirmation appears
+- assertVisible: "Discard Workout?"
+- assertVisible: "Your progress will be lost"
+- assertVisible: "Keep Going"
+- assertVisible: "Discard"
+
+# Test: Keep Going - should stay on workout
+- tapOn: "Keep Going"
+- assertVisible: "Complete Workout"
+
+# Test: Actually discard
+- tapOn: "Cancel"
+- assertVisible: "Discard Workout?"
+- tapOn: "Discard"
+
+# Verify we're back on main screen
+- assertVisible: "Your Workouts"

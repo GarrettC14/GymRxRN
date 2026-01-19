@@ -1,0 +1,79 @@
+# E2E Test: Create Workout Flow
+# Tests creating a new workout template
+#
+# Run: maestro test .maestro/create-workout-flow.yaml
+
+appId: com.gymrx.app
+
+---
+# Create New Workout Test
+
+- launchApp
+- waitForAnimationToEnd
+
+# === Ensure on Workouts tab ===
+- tapOn: "Workouts"
+- assertVisible: "Your Workouts"
+
+# === TEST: Tap FAB to create new workout ===
+- tapOn: "+"
+- waitForAnimationToEnd
+
+# === TEST: Verify create workout screen ===
+- assertVisible: "New Workout"
+- assertVisible: "Workout Name"
+- assertVisible: "Description"
+- assertVisible: "Cancel"
+- assertVisible: "Create"
+
+# === TEST: Create button disabled when empty ===
+# Note: Can't easily test disabled state in Maestro
+
+# === TEST: Enter workout name ===
+- tapOn: "e.g., Push Day, Leg Day"
+- inputText: "Test Workout"
+- hideKeyboard
+
+# === TEST: Enter description ===
+- tapOn: "Brief description"
+- inputText: "Testing workout creation"
+- hideKeyboard
+
+# === TEST: Create the workout ===
+- tapOn: "Create"
+- waitForAnimationToEnd
+
+# === TEST: Should navigate to edit workout screen ===
+- assertVisible: "Edit Workout"
+- assertVisible: "Test Workout"
+
+# === TEST: Add an exercise to the workout ===
+- tapOn: "Add Exercise"
+- waitForAnimationToEnd
+
+# === TEST: Verify add exercise screen ===
+- assertVisible: "Add Exercise"
+- assertVisible: "Search exercises"
+
+# Search and add an exercise
+- tapOn: "Search exercises..."
+- inputText: "Bench"
+- waitForAnimationToEnd
+- tapOn: "Bench Press"
+- waitForAnimationToEnd
+
+# === TEST: Verify exercise was added ===
+- assertVisible: "Edit Workout"
+- assertVisible: "Bench Press"
+
+# === TEST: Go back to workouts list ===
+- tapOn:
+    text: "Workouts"
+
+# === TEST: Verify new workout appears ===
+- assertVisible: "Test Workout"
+
+# === CLEANUP: Delete test workout ===
+- longPressOn: "Test Workout"
+- assertVisible: "Delete Workout"
+- tapOn: "Delete"

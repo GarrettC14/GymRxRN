@@ -1,0 +1,98 @@
+# E2E Test: Workout Input Handling
+# Tests that input changes don't trigger premature completion
+#
+# Run: maestro test .maestro/log-workout-input-test.yaml
+
+appId: com.gymrx.app
+
+---
+# Test: Input handling doesn't trigger completion
+
+- launchApp
+- waitForAnimationToEnd
+
+# Setup - navigate to workout
+- runFlow:
+    when:
+      visible: "Get Started"
+    commands:
+      - tapOn: "Get Started"
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "Push Day"
+    commands:
+      - tapOn:
+          text: "▶"
+          index: 0
+
+# On log workout screen
+- assertVisible: "Complete Workout"
+
+# Test 1: Type in weight field - should NOT show completion
+- tapOn:
+    text: "0"
+    index: 0
+- inputText: "1"
+- assertNotVisible: "Workout Saved"
+- assertNotVisible: "Complete Workout?"
+
+- inputText: "3"
+- assertNotVisible: "Workout Saved"
+- assertNotVisible: "Complete Workout?"
+
+- inputText: "5"
+- assertNotVisible: "Workout Saved"
+- assertNotVisible: "Complete Workout?"
+
+# Hide keyboard
+- hideKeyboard
+
+# Verify still on workout screen
+- assertVisible: "Complete Workout"
+- assertVisible: "Cancel"
+
+# Test 2: Type in reps field - should NOT show completion
+- tapOn:
+    text: "10"
+    index: 0
+- clearText
+- inputText: "8"
+- assertNotVisible: "Workout Saved"
+- assertNotVisible: "Complete Workout?"
+
+# Hide keyboard
+- hideKeyboard
+
+# Test 3: Add multiple sets and fill them - should NOT trigger completion
+- scrollUntilVisible:
+    element: "+ Add Set"
+    direction: DOWN
+- tapOn: "+ Add Set"
+- waitForAnimationToEnd
+
+# Verify completion wasn't triggered
+- assertNotVisible: "Workout Saved"
+- assertVisible: "Complete Workout"
+
+# Test 4: Rapidly change inputs - should NOT trigger completion
+- repeat:
+    times: 3
+    commands:
+      - tapOn:
+          text: "0"
+          index: 0
+      - inputText: "100"
+      - hideKeyboard
+      - assertNotVisible: "Workout Saved"
+
+# Final verification - only Complete Workout button should trigger save
+- assertVisible: "Complete Workout"
+- tapOn: "Complete Workout"
+- assertVisible: "Complete Workout?"  # Confirmation dialog
+- tapOn: "Keep Going"  # Cancel to not actually save
+
+# Cleanup - go back
+- tapOn: "Cancel"
+- tapOn: "Discard"

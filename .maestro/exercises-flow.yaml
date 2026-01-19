@@ -1,0 +1,73 @@
+# E2E Test: Exercises Screen Flow
+# Tests browsing and searching exercises
+#
+# Run: maestro test .maestro/exercises-flow.yaml
+
+appId: com.gymrx.app
+
+---
+# Exercises Screen Test
+
+- launchApp
+- waitForAnimationToEnd
+
+# === Navigate to Exercises tab ===
+- tapOn: "Exercises"
+- waitForAnimationToEnd
+
+# === TEST: Exercises screen loads ===
+- assertVisible: "Exercises"
+
+# === TEST: Search functionality ===
+- tapOn: "Search exercises..."
+- inputText: "Bench"
+- waitForAnimationToEnd
+
+# Verify filtered results
+- assertVisible: "Bench Press"
+
+# === TEST: Clear search ===
+- tapOn: "✕"
+- waitForAnimationToEnd
+
+# Search should be cleared
+- assertVisible: "Search exercises..."
+
+# === TEST: Search for another exercise ===
+- tapOn: "Search exercises..."
+- inputText: "Squat"
+- waitForAnimationToEnd
+- assertVisible: "Squat"
+
+# Clear and verify all exercises return
+- tapOn: "✕"
+- hideKeyboard
+
+# === TEST: Tap on an exercise to edit ===
+- scrollUntilVisible:
+    element: "Bench Press"
+    direction: DOWN
+
+- tapOn: "Bench Press"
+- waitForAnimationToEnd
+
+# Verify edit screen opened (should show exercise details)
+- assertVisible: "Edit Exercise"
+
+# Go back
+- tapOn:
+    text: "Exercises"
+
+# === TEST: Create new exercise via FAB ===
+- assertVisible: "+"
+- tapOn: "+"
+- waitForAnimationToEnd
+
+# Verify create exercise screen
+- assertVisible: "Create Exercise"
+
+# Cancel and go back
+- tapOn: "Cancel"
+
+# === TEST: Verify return to exercises list ===
+- assertVisible: "Exercises"

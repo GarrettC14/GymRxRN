@@ -1,0 +1,46 @@
+# E2E Test: History Screen Flow
+# Tests viewing workout history
+#
+# Run: maestro test .maestro/history-flow.yaml
+
+appId: com.gymrx.app
+
+---
+# History Screen Test
+
+- launchApp
+- waitForAnimationToEnd
+
+# === Navigate to History tab ===
+- tapOn: "History"
+- waitForAnimationToEnd
+
+# === TEST: History screen loads ===
+- assertVisible: "History"
+
+# === TEST: Empty state or workout history ===
+- runFlow:
+    when:
+      visible: "No workouts logged yet"
+    commands:
+      - assertVisible: "Complete a workout to see it here"
+
+# === TEST: If workouts exist, tap to view details ===
+- runFlow:
+    when:
+      notVisible: "No workouts logged yet"
+    commands:
+      # Tap on first workout in history
+      - tapOn:
+          text: "›"
+          index: 0
+      - waitForAnimationToEnd
+      # Should show workout details
+      - assertVisible: "Exercise Details"
+      # Go back
+      - tapOn:
+          text: "History"
+
+# === TEST: Return to workouts tab ===
+- tapOn: "Workouts"
+- assertVisible: "Your Workouts"

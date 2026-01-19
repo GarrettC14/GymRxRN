@@ -1,0 +1,90 @@
+# E2E Test: Log Workout Flow
+# Tests the complete workout logging experience
+#
+# Prerequisites:
+# - Install Maestro: curl -Ls "https://get.maestro.mobile.dev" | bash
+# - Run: maestro test .maestro/log-workout-flow.yaml
+
+appId: com.gymrx.app
+
+---
+# Test: Start and Complete a Workout
+
+- launchApp
+
+# Wait for app to load
+- waitForAnimationToEnd
+
+# Tap on Get Started if no workouts exist (first run)
+- runFlow:
+    when:
+      visible: "Get Started"
+    commands:
+      - tapOn: "Get Started"
+      - waitForAnimationToEnd
+
+# Select a workout to start (e.g., Push Day)
+- assertVisible: "Your Workouts"
+
+- runFlow:
+    when:
+      visible: "Push Day"
+    commands:
+      # Tap the play button on Push Day workout card
+      - tapOn:
+          text: "▶"
+          index: 0
+
+# Verify we're on the log workout screen
+- assertVisible: "Push Day"
+- assertVisible: "Complete Workout"
+- assertVisible: "Cancel"
+
+# Test: Input weight values
+- tapOn:
+    id: "weight-input-0"
+- inputText: "135"
+
+# Test: Input reps values
+- tapOn:
+    id: "reps-input-0"
+- inputText: "10"
+
+# Verify inputs don't trigger completion
+- assertNotVisible: "Workout Saved"
+- assertVisible: "Complete Workout"
+
+# Test: Add a new set
+- scrollUntilVisible:
+    element: "+ Add Set"
+    direction: DOWN
+- tapOn: "+ Add Set"
+
+# Test: Complete workout with confirmation
+- scrollUntilVisible:
+    element: "Complete Workout"
+    direction: DOWN
+- tapOn: "Complete Workout"
+
+# Verify confirmation dialog appears
+- assertVisible: "Complete Workout?"
+- assertVisible: "Keep Going"
+- assertVisible: "Complete"
+
+# Test: Cancel completion (Keep Going)
+- tapOn: "Keep Going"
+
+# Verify we're still on the workout screen
+- assertVisible: "Complete Workout"
+
+# Now actually complete the workout
+- tapOn: "Complete Workout"
+- assertVisible: "Complete Workout?"
+- tapOn: "Complete"
+
+# Verify success message
+- assertVisible: "Workout Saved"
+- tapOn: "OK"
+
+# Verify we're back on the main screen
+- assertVisible: "Your Workouts"
