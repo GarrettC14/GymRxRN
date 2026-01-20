@@ -1,11 +1,19 @@
 import React from 'react';
 import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
 
+// Mock @shopify/react-native-skia before anything else
+jest.mock('@shopify/react-native-skia', () => ({
+  Circle: () => null,
+  LinearGradient: () => null,
+  vec: (x: number, y: number) => ({ x, y }),
+}));
+
 // Mock victory-native before anything else
 jest.mock('victory-native', () => ({
-  CartesianChart: ({ children }: any) => children({ points: { maxWeight: [], sets: [] }, chartBounds: {} }),
+  CartesianChart: ({ children }: any) => children({ points: { maxWeight: [], sets: [] }, chartBounds: { top: 0, bottom: 200 } }),
   Bar: () => null,
   Line: () => null,
+  useChartPressState: () => ({}),
 }));
 
 jest.mock('@expo/vector-icons', () => ({

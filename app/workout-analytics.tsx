@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { CartesianChart, Bar, Line } from 'victory-native';
+import { CartesianChart, Bar, Line, useChartPressState } from 'victory-native';
+import { Circle, LinearGradient, vec } from '@shopify/react-native-skia';
 import {
   useWorkoutInstanceExercises,
   useDatabaseOperations,
@@ -24,6 +25,11 @@ import {
 import { formatDate, findMaxWeight, calculateBestOneRepMax } from '../src/utils';
 import ExerciseInstance from '../src/database/models/ExerciseInstance';
 import ExerciseType from '../src/database/models/ExerciseType';
+import {
+  iOSColors,
+  iOSChartConfig,
+  getBodyPartColor,
+} from '../src/theme/chartTheme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -73,7 +79,7 @@ export default function WorkoutAnalyticsScreen() {
     return unique.sort((a, b) => a.name.localeCompare(b.name));
   }, [exercises, exerciseDetails]);
 
-  // Calculate sets by body part
+  // Calculate sets by body part with colors
   const setsByBodyPart = useMemo(() => {
     const counts: Record<string, number> = {};
     exercises.forEach((ex) => {
@@ -83,10 +89,13 @@ export default function WorkoutAnalyticsScreen() {
         counts[bodyPart] = (counts[bodyPart] || 0) + ex.repsPerSet.length;
       }
     });
-    return Object.entries(counts).map(([bodyPart, sets]) => ({
-      bodyPart,
-      sets,
-    }));
+    return Object.entries(counts)
+      .map(([bodyPart, sets]) => ({
+        bodyPart,
+        sets,
+        color: getBodyPartColor(bodyPart),
+      }))
+      .sort((a, b) => b.sets - a.sets);
   }, [exercises, exerciseDetails]);
 
   const handleExercisePress = (exerciseTypeId: string) => {
@@ -124,17 +133,42 @@ export default function WorkoutAnalyticsScreen() {
                   data={setsByBodyPart}
                   xKey="bodyPart"
                   yKeys={['sets']}
-                  domainPadding={{ left: 40, right: 40, top: 20 }}
+                  domainPadding={{ left: 48, right: 48, top: 24, bottom: 8 }}
+                  axisOptions={{
+                    lineColor: iOSColors.axisLine,
+                    lineWidth: 0.5,
+                    labelColor: iOSColors.labelSecondary,
+                    labelOffset: 8,
+                  }}
                 >
                   {({ points, chartBounds }) => (
-                    <Bar
-                      points={points.sets}
-                      chartBounds={chartBounds}
-                      color="#007AFF"
-                      roundedCorners={{ topLeft: 4, topRight: 4 }}
-                    />
+                    <>
+                      {points.sets.map((point, index) => (
+                        <Bar
+                          key={index}
+                          points={[point]}
+                          chartBounds={chartBounds}
+                          color={setsByBodyPart[index]?.color || iOSColors.blue}
+                          roundedCorners={iOSChartConfig.bar.roundedCorners}
+                          barWidth={iOSChartConfig.bar.barWidth}
+                          animate={{ type: 'timing', duration: 350 }}
+                        />
+                      ))}
+                    </>
                   )}
                 </CartesianChart>
+              </View>
+              {/* iOS-style legend */}
+              <View style={styles.legendContainer}>
+                {setsByBodyPart.map((item, index) => (
+                  <View key={index} style={styles.legendItem}>
+                    <View
+                      style={[styles.legendDot, { backgroundColor: item.color }]}
+                    />
+                    <Text style={styles.legendLabel}>{item.bodyPart}</Text>
+                    <Text style={styles.legendValue}>{item.sets}</Text>
+                  </View>
+                ))}
               </View>
             </View>
           )}
@@ -258,19 +292,55 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   chartCard: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: '#1C1C1E',
+    borderRadius: 16,
+    padding: 20,
     marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
   chartTitle: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '600',
     marginBottom: 16,
+    letterSpacing: -0.4,
   },
   chartContainer: {
-    height: 200,
+    height: 220,
+  },
+  legendContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 0.5,
+    borderTopColor: '#3A3A3C',
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 16,
+    marginBottom: 8,
+  },
+  legendDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 6,
+  },
+  legendLabel: {
+    color: '#8E8E93',
+    fontSize: 13,
+    marginRight: 4,
+  },
+  legendValue: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '600',
   },
   sectionTitle: {
     color: '#FFFFFF',

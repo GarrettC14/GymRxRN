@@ -195,16 +195,16 @@ describe('WorkoutStore', () => {
       it('updates preferred weight type', () => {
         const { setPreferredWeightType } = useWorkoutStore.getState();
 
-        setPreferredWeightType(WeightType.Kgs);
+        setPreferredWeightType(WeightType.Kg);
 
         const { preferredWeightType } = useWorkoutStore.getState();
-        expect(preferredWeightType).toBe(WeightType.Kgs);
+        expect(preferredWeightType).toBe(WeightType.Kg);
       });
 
       it('can switch between types', () => {
         const { setPreferredWeightType } = useWorkoutStore.getState();
 
-        setPreferredWeightType(WeightType.Kgs);
+        setPreferredWeightType(WeightType.Kg);
         setPreferredWeightType(WeightType.Lbs);
 
         const { preferredWeightType } = useWorkoutStore.getState();

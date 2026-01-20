@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
-import { CartesianChart, Line, Bar } from 'victory-native';
+import { CartesianChart, Line, Bar, useChartPressState } from 'victory-native';
+import { Circle, LinearGradient, vec } from '@shopify/react-native-skia';
 import {
   useExerciseHistory,
   useDatabaseOperations,
@@ -29,6 +30,7 @@ import {
 import ExerciseType from '../src/database/models/ExerciseType';
 import ExerciseInstance from '../src/database/models/ExerciseInstance';
 import { Ionicons } from '@expo/vector-icons';
+import { iOSColors, iOSChartConfig } from '../src/theme/chartTheme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -246,15 +248,41 @@ export default function ExerciseAnalyticsScreen() {
                   data={weightProgressionData}
                   xKey="index"
                   yKeys={['maxWeight']}
-                  domainPadding={{ left: 20, right: 20, top: 20, bottom: 10 }}
+                  domainPadding={{ left: 24, right: 24, top: 24, bottom: 16 }}
+                  axisOptions={{
+                    lineColor: iOSColors.axisLine,
+                    lineWidth: 0.5,
+                    labelColor: iOSColors.labelSecondary,
+                    labelOffset: 8,
+                  }}
                 >
-                  {({ points }) => (
-                    <Line
-                      points={points.maxWeight}
-                      color="#007AFF"
-                      strokeWidth={3}
-                      curveType="natural"
-                    />
+                  {({ points, chartBounds }) => (
+                    <>
+                      <Line
+                        points={points.maxWeight}
+                        color={iOSColors.blue}
+                        strokeWidth={iOSChartConfig.line.strokeWidth}
+                        curveType={iOSChartConfig.line.curveType}
+                        animate={{ type: 'timing', duration: 400 }}
+                      >
+                        <LinearGradient
+                          start={vec(0, chartBounds.top)}
+                          end={vec(0, chartBounds.bottom)}
+                          colors={[`${iOSColors.blue}40`, `${iOSColors.blue}05`]}
+                        />
+                      </Line>
+                      {points.maxWeight.map((point, index) =>
+                        point.y != null ? (
+                          <Circle
+                            key={index}
+                            cx={point.x}
+                            cy={point.y as number}
+                            r={5}
+                            color={iOSColors.blue}
+                          />
+                        ) : null
+                      )}
+                    </>
                   )}
                 </CartesianChart>
               </View>
@@ -271,14 +299,21 @@ export default function ExerciseAnalyticsScreen() {
                   data={setsData}
                   xKey="index"
                   yKeys={['sets']}
-                  domainPadding={{ left: 40, right: 40, top: 20 }}
+                  domainPadding={{ left: 48, right: 48, top: 24, bottom: 8 }}
+                  axisOptions={{
+                    lineColor: iOSColors.axisLine,
+                    lineWidth: 0.5,
+                    labelColor: iOSColors.labelSecondary,
+                    labelOffset: 8,
+                  }}
                 >
                   {({ points, chartBounds }) => (
                     <Bar
                       points={points.sets}
                       chartBounds={chartBounds}
-                      color="#34C759"
-                      roundedCorners={{ topLeft: 4, topRight: 4 }}
+                      color={iOSColors.green}
+                      roundedCorners={iOSChartConfig.bar.roundedCorners}
+                      animate={{ type: 'timing', duration: 350 }}
                     />
                   )}
                 </CartesianChart>
@@ -330,16 +365,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   prCard: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: '#1C1C1E',
+    borderRadius: 16,
+    padding: 20,
     marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
   cardTitle: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '600',
     marginBottom: 16,
+    letterSpacing: -0.4,
   },
   prGrid: {
     flexDirection: 'row',
@@ -361,10 +402,15 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   logCard: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: '#1C1C1E',
+    borderRadius: 16,
+    padding: 20,
     marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
   logNavigator: {
     flexDirection: 'row',
@@ -444,19 +490,25 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   chartCard: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: '#1C1C1E',
+    borderRadius: 16,
+    padding: 20,
     marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
   chartContainer: {
-    height: 200,
+    height: 220,
   },
   chartLabel: {
     color: '#8E8E93',
-    fontSize: 12,
+    fontSize: 13,
     textAlign: 'center',
-    marginTop: 8,
+    marginTop: 12,
+    letterSpacing: -0.2,
   },
   emptyState: {
     paddingVertical: 48,
