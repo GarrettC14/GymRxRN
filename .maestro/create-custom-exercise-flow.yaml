@@ -1,0 +1,104 @@
+# E2E Test: Create Custom Exercise Flow
+# Tests creating a new custom exercise type
+#
+# Run: maestro test .maestro/create-custom-exercise-flow.yaml
+
+appId: com.gymrx.app
+
+---
+# Create Custom Exercise Test
+
+- launchApp
+- waitForAnimationToEnd
+
+# === Navigate to Exercises tab ===
+- tapOn: "Exercises"
+- waitForAnimationToEnd
+- assertVisible: "Exercises"
+
+# === TEST: Tap FAB to create new exercise ===
+- tapOn: "+"
+- waitForAnimationToEnd
+
+# === TEST: Verify create exercise screen ===
+- assertVisible: "Create Exercise"
+- assertVisible: "Exercise Name"
+- assertVisible: "Category"
+- assertVisible: "Body Part"
+- assertVisible: "Cancel"
+- assertVisible: "Create"
+
+# === TEST: Create button behavior with empty name ===
+# Attempt to create without name - should not work
+- tapOn: "Create"
+- assertVisible: "Create Exercise"  # Still on create screen
+
+# === TEST: Enter exercise name ===
+- tapOn:
+    text: "e.g., Romanian Deadlift"
+- inputText: "E2E Test Exercise"
+- hideKeyboard
+
+# === TEST: Select category ===
+- scrollUntilVisible:
+    element: "Dumbbell"
+    direction: DOWN
+- tapOn: "Dumbbell"
+- waitForAnimationToEnd
+
+# === TEST: Select body part ===
+- scrollUntilVisible:
+    element: "Biceps"
+    direction: DOWN
+- tapOn: "Biceps"
+- waitForAnimationToEnd
+
+# === TEST: Create the exercise ===
+- tapOn: "Create"
+- waitForAnimationToEnd
+
+# === TEST: Verify returned to exercises list ===
+- assertVisible: "Exercises"
+
+# === TEST: Verify new exercise appears in list ===
+- tapOn: "Search exercises..."
+- inputText: "E2E Test"
+- waitForAnimationToEnd
+- assertVisible: "E2E Test Exercise"
+
+# Clear search
+- tapOn: "✕"
+- hideKeyboard
+
+# === TEST: Verify exercise details are correct ===
+- tapOn: "E2E Test Exercise"
+- waitForAnimationToEnd
+- assertVisible: "Edit Exercise"
+- assertVisible: "E2E Test Exercise"
+- assertVisible: "Dumbbell"
+- assertVisible: "Biceps"
+
+# === CLEANUP: Delete the test exercise ===
+# Note: If there's a delete option in edit screen
+- runFlow:
+    when:
+      visible: "Delete"
+    commands:
+      - tapOn: "Delete"
+      - waitForAnimationToEnd
+      - runFlow:
+          when:
+            visible: "Confirm"
+          commands:
+            - tapOn: "Confirm"
+
+# If no delete, just cancel
+- runFlow:
+    when:
+      visible: "Cancel"
+    commands:
+      - tapOn: "Cancel"
+      - waitForAnimationToEnd
+
+# Verify back on exercises
+- assertVisible: "Exercises"

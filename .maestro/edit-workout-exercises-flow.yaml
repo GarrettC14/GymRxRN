@@ -1,0 +1,116 @@
+# E2E Test: Edit Workout Exercises Flow
+# Tests adding and removing exercises from a workout template
+#
+# Run: maestro test .maestro/edit-workout-exercises-flow.yaml
+
+appId: com.gymrx.app
+
+---
+# Edit Workout Exercises Test
+
+- launchApp
+- waitForAnimationToEnd
+
+# Ensure on Workouts tab
+- tapOn: "Workouts"
+- waitForAnimationToEnd
+- assertVisible: "Your Workouts"
+
+# === SETUP: Create a test workout ===
+- tapOn: "+"
+- waitForAnimationToEnd
+- assertVisible: "New Workout"
+
+- tapOn: "e.g., Push Day, Leg Day"
+- inputText: "E2E Edit Test"
+- hideKeyboard
+
+- tapOn: "Create"
+- waitForAnimationToEnd
+
+# Should be on edit workout screen
+- assertVisible: "Edit Workout"
+
+# === TEST: Verify empty state ===
+- assertVisible: "No exercises added yet"
+- assertVisible: "Tap the button below to add exercises"
+
+# === TEST: Add first exercise ===
+- tapOn: "+ Add Exercise"
+- waitForAnimationToEnd
+
+# Verify on add exercise screen
+- assertVisible: "Add Exercise"
+- assertVisible: "Search exercises"
+
+# Search and select an exercise
+- tapOn: "Search exercises..."
+- inputText: "Bench"
+- waitForAnimationToEnd
+- tapOn: "Bench Press"
+- waitForAnimationToEnd
+
+# === TEST: Verify exercise was added ===
+- assertVisible: "Edit Workout"
+- assertVisible: "Bench Press"
+
+# === TEST: Add second exercise ===
+- tapOn: "+ Add Exercise"
+- waitForAnimationToEnd
+
+- tapOn: "Search exercises..."
+- inputText: "Squat"
+- waitForAnimationToEnd
+- tapOn: "Squat"
+- waitForAnimationToEnd
+
+# Verify both exercises are listed
+- assertVisible: "Bench Press"
+- assertVisible: "Squat"
+
+# === TEST: Add third exercise ===
+- tapOn: "+ Add Exercise"
+- waitForAnimationToEnd
+
+- tapOn: "Search exercises..."
+- inputText: "Deadlift"
+- waitForAnimationToEnd
+- tapOn: "Deadlift"
+- waitForAnimationToEnd
+
+# Verify all exercises listed
+- scrollUntilVisible:
+    element: "Deadlift"
+    direction: DOWN
+- assertVisible: "Deadlift"
+
+# === TEST: Long press to delete an exercise ===
+- longPressOn: "Squat"
+- waitForAnimationToEnd
+
+# Verify delete confirmation
+- assertVisible: "Delete Exercise"
+- tapOn: "Delete"
+- waitForAnimationToEnd
+
+# Verify exercise was removed
+- assertNotVisible: "Squat"
+- assertVisible: "Bench Press"
+- assertVisible: "Deadlift"
+
+# === TEST: Done button returns to workouts ===
+- tapOn: "Done"
+- waitForAnimationToEnd
+
+# Verify on workouts screen
+- assertVisible: "Your Workouts"
+- assertVisible: "E2E Edit Test"
+
+# === CLEANUP: Delete test workout ===
+- longPressOn: "E2E Edit Test"
+- assertVisible: "Delete Workout"
+- tapOn: "Delete"
+- waitForAnimationToEnd
+
+# Verify deleted
+- assertNotVisible: "E2E Edit Test"

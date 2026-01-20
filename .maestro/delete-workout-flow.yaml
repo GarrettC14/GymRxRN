@@ -1,0 +1,71 @@
+# E2E Test: Delete Workout Flow
+# Tests deleting a workout template
+#
+# Run: maestro test .maestro/delete-workout-flow.yaml
+
+appId: com.gymrx.app
+
+---
+# Delete Workout Test
+
+- launchApp
+- waitForAnimationToEnd
+
+# Ensure on Workouts tab
+- tapOn: "Workouts"
+- waitForAnimationToEnd
+- assertVisible: "Your Workouts"
+
+# === SETUP: Create a workout to delete ===
+- tapOn: "+"
+- waitForAnimationToEnd
+- assertVisible: "New Workout"
+
+# Enter workout name
+- tapOn: "e.g., Push Day, Leg Day"
+- inputText: "Workout To Delete"
+- hideKeyboard
+
+# Create the workout
+- tapOn: "Create"
+- waitForAnimationToEnd
+
+# Should be on edit workout screen
+- assertVisible: "Edit Workout"
+
+# Go back to workouts list
+- tapOn:
+    text: "Workouts"
+- waitForAnimationToEnd
+
+# === TEST: Verify workout was created ===
+- assertVisible: "Workout To Delete"
+
+# === TEST: Long press to show delete option ===
+- longPressOn: "Workout To Delete"
+- waitForAnimationToEnd
+
+# === TEST: Verify delete confirmation appears ===
+- assertVisible: "Delete Workout"
+- assertVisible: "Delete"
+- assertVisible: "Cancel"
+
+# === TEST: Cancel deletion ===
+- tapOn: "Cancel"
+- waitForAnimationToEnd
+
+# Verify workout still exists
+- assertVisible: "Workout To Delete"
+
+# === TEST: Actually delete the workout ===
+- longPressOn: "Workout To Delete"
+- waitForAnimationToEnd
+- assertVisible: "Delete Workout"
+- tapOn: "Delete"
+- waitForAnimationToEnd
+
+# === TEST: Verify workout was deleted ===
+- assertNotVisible: "Workout To Delete"
+
+# === TEST: Verify other workouts still exist ===
+- assertVisible: "Your Workouts"

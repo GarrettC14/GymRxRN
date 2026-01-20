@@ -1,0 +1,110 @@
+# E2E Test: Edit Exercise Flow
+# Tests editing an existing exercise's details
+#
+# Run: maestro test .maestro/edit-exercise-flow.yaml
+
+appId: com.gymrx.app
+
+---
+# Edit Exercise Test
+
+- launchApp
+- waitForAnimationToEnd
+
+# === Navigate to Exercises tab ===
+- tapOn: "Exercises"
+- waitForAnimationToEnd
+- assertVisible: "Exercises"
+
+# === TEST: Search for a specific exercise ===
+- tapOn: "Search exercises..."
+- inputText: "Bench Press"
+- waitForAnimationToEnd
+- assertVisible: "Bench Press"
+
+# Clear search
+- tapOn: "✕"
+- hideKeyboard
+
+# === TEST: Tap on exercise to edit ===
+- scrollUntilVisible:
+    element: "Bench Press"
+    direction: DOWN
+- tapOn: "Bench Press"
+- waitForAnimationToEnd
+
+# === TEST: Verify edit exercise screen ===
+- assertVisible: "Edit Exercise"
+- assertVisible: "Exercise Name"
+- assertVisible: "Category"
+- assertVisible: "Body Part"
+- assertVisible: "Cancel"
+- assertVisible: "Save"
+
+# === TEST: Verify current values are loaded ===
+- assertVisible: "Bench Press"
+- assertVisible: "Barbell"
+- assertVisible: "Chest"
+
+# === TEST: Change category selection ===
+- scrollUntilVisible:
+    element: "Dumbbell"
+    direction: DOWN
+- tapOn: "Dumbbell"
+- waitForAnimationToEnd
+
+# === TEST: Change body part selection ===
+- scrollUntilVisible:
+    element: "Shoulders"
+    direction: DOWN
+- tapOn: "Shoulders"
+- waitForAnimationToEnd
+
+# === TEST: Cancel without saving ===
+- tapOn: "Cancel"
+- waitForAnimationToEnd
+
+# Verify back on exercises list
+- assertVisible: "Exercises"
+
+# === TEST: Edit and save changes ===
+- tapOn: "Search exercises..."
+- inputText: "Bench Press"
+- waitForAnimationToEnd
+- tapOn: "Bench Press"
+- waitForAnimationToEnd
+
+# Verify we're editing
+- assertVisible: "Edit Exercise"
+
+# Change the exercise name
+- tapOn: "Bench Press"
+- clearText
+- inputText: "Flat Bench Press"
+- hideKeyboard
+
+# Save changes
+- tapOn: "Save"
+- waitForAnimationToEnd
+
+# Verify back on exercises list
+- assertVisible: "Exercises"
+
+# Verify the change was saved
+- tapOn: "Search exercises..."
+- inputText: "Flat Bench"
+- waitForAnimationToEnd
+- assertVisible: "Flat Bench Press"
+
+# === CLEANUP: Revert the change ===
+- tapOn: "Flat Bench Press"
+- waitForAnimationToEnd
+- tapOn: "Flat Bench Press"
+- clearText
+- inputText: "Bench Press"
+- hideKeyboard
+- tapOn: "Save"
+- waitForAnimationToEnd
+
+# Verify cleanup worked
+- assertVisible: "Exercises"

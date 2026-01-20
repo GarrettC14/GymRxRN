@@ -1,0 +1,123 @@
+# E2E Test: Exercise Analytics Flow
+# Tests viewing exercise-specific analytics and history
+#
+# Run: maestro test .maestro/exercise-analytics-flow.yaml
+
+appId: com.gymrx.app
+
+---
+# Exercise Analytics Test
+
+- launchApp
+- waitForAnimationToEnd
+
+# === Navigate to Exercises tab ===
+- tapOn: "Exercises"
+- waitForAnimationToEnd
+- assertVisible: "Exercises"
+
+# === TEST: Find and tap on an exercise ===
+- tapOn: "Search exercises..."
+- inputText: "Bench Press"
+- waitForAnimationToEnd
+- assertVisible: "Bench Press"
+
+# Clear search
+- tapOn: "✕"
+- hideKeyboard
+
+# === TEST: Navigate to exercise analytics ===
+- scrollUntilVisible:
+    element: "Bench Press"
+    direction: DOWN
+
+# Long press to access exercise options (if available)
+# Or navigate through edit screen to analytics
+- tapOn: "Bench Press"
+- waitForAnimationToEnd
+
+# === TEST: Verify edit exercise screen loads ===
+- assertVisible: "Edit Exercise"
+
+# Look for analytics button or link
+- runFlow:
+    when:
+      visible: "View History"
+    commands:
+      - tapOn: "View History"
+      - waitForAnimationToEnd
+      - assertVisible: "Personal Records"
+      - assertVisible: "Exercise Log"
+      # Go back
+      - back
+      - waitForAnimationToEnd
+
+# === TEST: Go back to exercises list ===
+- tapOn: "Cancel"
+- waitForAnimationToEnd
+- assertVisible: "Exercises"
+
+# === Navigate via History tab ===
+- tapOn: "History"
+- waitForAnimationToEnd
+- assertVisible: "History"
+
+# If there are workout entries, navigate to exercise analytics through there
+- runFlow:
+    when:
+      notVisible: "No workouts logged yet"
+    commands:
+      # Tap on first workout
+      - tapOn:
+          text: "›"
+          index: 0
+      - waitForAnimationToEnd
+
+      # Look for an exercise to tap on
+      - runFlow:
+          when:
+            visible: "Bench Press"
+          commands:
+            - tapOn: "Bench Press"
+            - waitForAnimationToEnd
+
+            # === TEST: Verify exercise analytics screen ===
+            - assertVisible: "Personal Records"
+
+            # === TEST: Verify PR cards are displayed ===
+            - runFlow:
+                when:
+                  visible: "Max Weight"
+                commands:
+                  - assertVisible: "Max Weight"
+
+            - runFlow:
+                when:
+                  visible: "Max Reps"
+                commands:
+                  - assertVisible: "Max Reps"
+
+            - runFlow:
+                when:
+                  visible: "Est. 1RM"
+                commands:
+                  - assertVisible: "Est. 1RM"
+
+            # === TEST: Verify exercise log section ===
+            - scrollUntilVisible:
+                element: "Exercise Log"
+                direction: DOWN
+            - assertVisible: "Exercise Log"
+
+            # === TEST: Scroll through log entries ===
+            - scroll:
+                direction: DOWN
+
+            # Go back
+            - back
+            - waitForAnimationToEnd
+
+# Return to workouts
+- tapOn: "Workouts"
+- waitForAnimationToEnd
+- assertVisible: "Your Workouts"

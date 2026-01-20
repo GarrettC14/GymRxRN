@@ -1,0 +1,77 @@
+# E2E Test: Workout Analytics Flow
+# Tests viewing workout analytics after completing a workout
+#
+# Run: maestro test .maestro/workout-analytics-flow.yaml
+
+appId: com.gymrx.app
+
+---
+# Workout Analytics Test
+
+- launchApp
+- waitForAnimationToEnd
+
+# === SETUP: First complete a workout if needed ===
+# Navigate to history to check for existing workouts
+- tapOn: "History"
+- waitForAnimationToEnd
+- assertVisible: "History"
+
+# === TEST: View workout details and analytics ===
+- runFlow:
+    when:
+      notVisible: "No workouts logged yet"
+    commands:
+      # Tap on the first workout in history
+      - tapOn:
+          text: "›"
+          index: 0
+      - waitForAnimationToEnd
+
+      # === TEST: Verify workout detail screen ===
+      - assertVisible: "View Analytics"
+
+      # === TEST: Navigate to analytics ===
+      - tapOn: "View Analytics"
+      - waitForAnimationToEnd
+
+      # === TEST: Verify analytics screen elements ===
+      - assertVisible: "Sets by Body Part"
+      - assertVisible: "Exercise Details"
+
+      # === TEST: Scroll to see all analytics content ===
+      - scrollUntilVisible:
+          element: "Exercise Details"
+          direction: DOWN
+
+      # === TEST: Tap on an exercise card for more details ===
+      - runFlow:
+          when:
+            visible: "Bench Press"
+          commands:
+            - tapOn: "Bench Press"
+            - waitForAnimationToEnd
+            - assertVisible: "Personal Records"
+            # Go back
+            - back
+            - waitForAnimationToEnd
+
+      # === TEST: Go back to workout details ===
+      - back
+      - waitForAnimationToEnd
+
+      # === TEST: Go back to history ===
+      - back
+      - waitForAnimationToEnd
+      - assertVisible: "History"
+
+# === TEST: Empty state handling ===
+- runFlow:
+    when:
+      visible: "No workouts logged yet"
+    commands:
+      - assertVisible: "Complete a workout to see it here"
+      # Navigate to workouts to complete one
+      - tapOn: "Workouts"
+      - waitForAnimationToEnd
+      - assertVisible: "Your Workouts"

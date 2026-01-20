@@ -1,0 +1,129 @@
+# E2E Test: Regression Suite
+# Quick regression test covering critical paths
+#
+# Run: maestro test .maestro/regression-suite.yaml
+
+appId: com.gymrx.app
+
+---
+# ================================================
+# REGRESSION TEST SUITE
+# Covers the most critical user flows quickly
+# ================================================
+
+- launchApp
+- waitForAnimationToEnd
+
+# ================================================
+# PHASE 1: Tab Navigation
+# ================================================
+
+- tapOn: "Workouts"
+- assertVisible: "Your Workouts"
+
+- tapOn: "Exercises"
+- assertVisible: "Exercises"
+
+- tapOn: "History"
+- assertVisible: "History"
+
+- tapOn: "Workouts"
+- assertVisible: "Your Workouts"
+
+# ================================================
+# PHASE 2: Create Workout Flow
+# ================================================
+
+- tapOn: "+"
+- assertVisible: "New Workout"
+- tapOn: "e.g., Push Day, Leg Day"
+- inputText: "Regression Test"
+- hideKeyboard
+- tapOn: "Create"
+- waitForAnimationToEnd
+- assertVisible: "Edit Workout"
+
+# Add an exercise
+- tapOn: "+ Add Exercise"
+- waitForAnimationToEnd
+- tapOn: "Search exercises..."
+- inputText: "Press"
+- waitForAnimationToEnd
+- tapOn:
+    text: "Bench Press"
+- waitForAnimationToEnd
+- assertVisible: "Bench Press"
+
+# Go back
+- tapOn: "Done"
+- waitForAnimationToEnd
+- assertVisible: "Regression Test"
+
+# ================================================
+# PHASE 3: Start and Complete Workout
+# ================================================
+
+# Find and start our test workout
+- scrollUntilVisible:
+    element: "Regression Test"
+    direction: DOWN
+- tapOn:
+    text: "▶"
+    index: 0
+- waitForAnimationToEnd
+
+- assertVisible: "Complete Workout"
+
+# Enter some data
+- tapOn:
+    text: "0"
+    index: 0
+- inputText: "135"
+- hideKeyboard
+
+# Complete workout
+- scrollUntilVisible:
+    element: "Complete Workout"
+    direction: DOWN
+- tapOn: "Complete Workout"
+- assertVisible: "Complete Workout?"
+- tapOn: "Complete"
+- assertVisible: "Workout Saved"
+- tapOn: "OK"
+- waitForAnimationToEnd
+- assertVisible: "Your Workouts"
+
+# ================================================
+# PHASE 4: Verify in History
+# ================================================
+
+- tapOn: "History"
+- waitForAnimationToEnd
+- assertNotVisible: "No workouts logged yet"
+
+# View workout details
+- tapOn:
+    text: "›"
+    index: 0
+- waitForAnimationToEnd
+- assertVisible: "View Analytics"
+
+# Go back
+- back
+- waitForAnimationToEnd
+
+# ================================================
+# PHASE 5: Cleanup
+# ================================================
+
+- tapOn: "Workouts"
+- waitForAnimationToEnd
+- longPressOn: "Regression Test"
+- assertVisible: "Delete Workout"
+- tapOn: "Delete"
+- waitForAnimationToEnd
+- assertNotVisible: "Regression Test"
+
+# ================================================
+# REGRESSION TEST COMPLETE
+# ================================================

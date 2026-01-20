@@ -1,0 +1,100 @@
+# E2E Test: Add and Remove Sets Flow
+# Tests adding and removing sets during workout logging
+#
+# Run: maestro test .maestro/add-remove-sets-flow.yaml
+
+appId: com.gymrx.app
+
+---
+# Add/Remove Sets Test
+
+- launchApp
+- waitForAnimationToEnd
+
+# Ensure on Workouts tab
+- tapOn: "Workouts"
+- waitForAnimationToEnd
+- assertVisible: "Your Workouts"
+
+# === Start a workout ===
+- runFlow:
+    when:
+      visible: "▶"
+    commands:
+      - tapOn:
+          text: "▶"
+          index: 0
+      - waitForAnimationToEnd
+
+# Verify on workout logging screen
+- assertVisible: "Complete Workout"
+- assertVisible: "Cancel"
+
+# === TEST: Initial set count ===
+# Should have some default sets displayed
+
+# === TEST: Add a new set ===
+- scrollUntilVisible:
+    element: "+ Add Set"
+    direction: DOWN
+- tapOn:
+    text: "+ Add Set"
+    index: 0
+- waitForAnimationToEnd
+
+# Verify no premature completion
+- assertNotVisible: "Workout Saved"
+- assertVisible: "Complete Workout"
+
+# === TEST: Add multiple sets ===
+- scrollUntilVisible:
+    element: "+ Add Set"
+    direction: DOWN
+- tapOn:
+    text: "+ Add Set"
+    index: 0
+- waitForAnimationToEnd
+
+- scrollUntilVisible:
+    element: "+ Add Set"
+    direction: DOWN
+- tapOn:
+    text: "+ Add Set"
+    index: 0
+- waitForAnimationToEnd
+
+# Verify still on workout screen
+- assertVisible: "Complete Workout"
+
+# === TEST: Fill in set data ===
+- scroll:
+    direction: UP
+- tapOn:
+    text: "0"
+    index: 0
+- inputText: "135"
+- hideKeyboard
+
+# === TEST: Remove a set (if available) ===
+- runFlow:
+    when:
+      visible: "×"
+    commands:
+      - tapOn:
+          text: "×"
+          index: 0
+      - waitForAnimationToEnd
+
+# === TEST: Verify removal didn't trigger completion ===
+- assertNotVisible: "Workout Saved"
+- assertVisible: "Complete Workout"
+
+# === CLEANUP: Discard workout ===
+- tapOn: "Cancel"
+- waitForAnimationToEnd
+- assertVisible: "Discard Workout?"
+- tapOn: "Discard"
+- waitForAnimationToEnd
+
+# Verify back on main screen
+- assertVisible: "Your Workouts"

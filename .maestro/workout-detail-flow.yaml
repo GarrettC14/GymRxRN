@@ -1,0 +1,115 @@
+# E2E Test: Workout Detail Flow
+# Tests viewing completed workout details
+#
+# Run: maestro test .maestro/workout-detail-flow.yaml
+
+appId: com.gymrx.app
+
+---
+# Workout Detail Test
+
+- launchApp
+- waitForAnimationToEnd
+
+# === Navigate to History tab ===
+- tapOn: "History"
+- waitForAnimationToEnd
+- assertVisible: "History"
+
+# === TEST: Handle empty or populated state ===
+- runFlow:
+    when:
+      visible: "No workouts logged yet"
+    commands:
+      # Need to complete a workout first
+      - tapOn: "Workouts"
+      - waitForAnimationToEnd
+      - assertVisible: "Your Workouts"
+
+      # Start a quick workout
+      - runFlow:
+          when:
+            visible: "▶"
+          commands:
+            - tapOn:
+                text: "▶"
+                index: 0
+            - waitForAnimationToEnd
+
+            # Fill in minimal data
+            - tapOn:
+                text: "0"
+                index: 0
+            - inputText: "100"
+            - hideKeyboard
+
+            # Complete workout
+            - scrollUntilVisible:
+                element: "Complete Workout"
+                direction: DOWN
+            - tapOn: "Complete Workout"
+            - tapOn: "Complete"
+            - waitForAnimationToEnd
+            - tapOn: "OK"
+            - waitForAnimationToEnd
+
+            # Now go to history
+            - tapOn: "History"
+            - waitForAnimationToEnd
+
+# === TEST: View workout details ===
+- runFlow:
+    when:
+      notVisible: "No workouts logged yet"
+    commands:
+      # Tap on first workout to view details
+      - tapOn:
+          text: "›"
+          index: 0
+      - waitForAnimationToEnd
+
+      # === TEST: Verify workout detail screen elements ===
+      - assertVisible: "View Analytics"
+
+      # === TEST: Verify exercises are displayed ===
+      - runFlow:
+          when:
+            visible: "Exercise Details"
+          commands:
+            - assertVisible: "Exercise Details"
+
+      # === TEST: Verify set information is displayed ===
+      # Look for set indicators (1, 2, 3, etc.)
+      - runFlow:
+          when:
+            visible: "Set 1"
+          commands:
+            - assertVisible: "Set 1"
+
+      # === TEST: Verify weight/reps are shown ===
+      - runFlow:
+          when:
+            visible: "lbs"
+          commands:
+            - assertVisible: "lbs"
+
+      # === TEST: Navigate to View Analytics ===
+      - tapOn: "View Analytics"
+      - waitForAnimationToEnd
+
+      # Verify analytics loads
+      - assertVisible: "Sets by Body Part"
+
+      # Go back
+      - back
+      - waitForAnimationToEnd
+
+      # === TEST: Return to history ===
+      - back
+      - waitForAnimationToEnd
+      - assertVisible: "History"
+
+# Return to Workouts
+- tapOn: "Workouts"
+- waitForAnimationToEnd
+- assertVisible: "Your Workouts"

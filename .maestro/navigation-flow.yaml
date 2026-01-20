@@ -1,0 +1,101 @@
+# E2E Test: Navigation Flow
+# Tests navigating between all main tabs and screens
+#
+# Run: maestro test .maestro/navigation-flow.yaml
+
+appId: com.gymrx.app
+
+---
+# Navigation Test
+
+- launchApp
+- waitForAnimationToEnd
+
+# === TEST: Initial load - Workouts tab ===
+- assertVisible: "Your Workouts"
+
+# === TEST: Navigate to Exercises tab ===
+- tapOn: "Exercises"
+- waitForAnimationToEnd
+- assertVisible: "Exercises"
+- assertVisible: "Search exercises"
+- assertVisible: "+"
+
+# === TEST: Navigate to History tab ===
+- tapOn: "History"
+- waitForAnimationToEnd
+- assertVisible: "History"
+
+# === TEST: Navigate back to Workouts tab ===
+- tapOn: "Workouts"
+- waitForAnimationToEnd
+- assertVisible: "Your Workouts"
+
+# === TEST: Rapid tab switching ===
+- tapOn: "Exercises"
+- tapOn: "History"
+- tapOn: "Workouts"
+- tapOn: "Exercises"
+- tapOn: "Workouts"
+- waitForAnimationToEnd
+- assertVisible: "Your Workouts"
+
+# === TEST: Navigate into workout creation and back ===
+- tapOn: "+"
+- waitForAnimationToEnd
+- assertVisible: "New Workout"
+- tapOn: "Cancel"
+- waitForAnimationToEnd
+- assertVisible: "Your Workouts"
+
+# === TEST: Navigate into exercise creation and back ===
+- tapOn: "Exercises"
+- waitForAnimationToEnd
+- tapOn: "+"
+- waitForAnimationToEnd
+- assertVisible: "Create Exercise"
+- tapOn: "Cancel"
+- waitForAnimationToEnd
+- assertVisible: "Exercises"
+
+# === TEST: Search then navigate away clears search ===
+- tapOn: "Search exercises..."
+- inputText: "test search"
+- waitForAnimationToEnd
+- tapOn: "Workouts"
+- waitForAnimationToEnd
+- assertVisible: "Your Workouts"
+
+# Go back to exercises
+- tapOn: "Exercises"
+- waitForAnimationToEnd
+# Search should be cleared (empty state)
+- assertVisible: "Search exercises..."
+
+# === TEST: Start workout then cancel ===
+- tapOn: "Workouts"
+- waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "▶"
+    commands:
+      - tapOn:
+          text: "▶"
+          index: 0
+      - waitForAnimationToEnd
+      - assertVisible: "Complete Workout"
+      - tapOn: "Cancel"
+      - waitForAnimationToEnd
+      - assertVisible: "Discard Workout?"
+      - tapOn: "Discard"
+      - waitForAnimationToEnd
+      - assertVisible: "Your Workouts"
+
+# === TEST: Final navigation verification ===
+- tapOn: "History"
+- assertVisible: "History"
+- tapOn: "Exercises"
+- assertVisible: "Exercises"
+- tapOn: "Workouts"
+- assertVisible: "Your Workouts"

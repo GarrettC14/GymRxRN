@@ -8,7 +8,8 @@ module.exports = {
   testMatch: ['**/__tests__/**/*.(test|spec).(ts|tsx|js|jsx)'],
   testPathIgnorePatterns: ['/node_modules/', '/android/', '/ios/', '/.maestro/'],
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
+    '^@/src/(.*)$': '<rootDir>/src/$1',
+    '^@/(.*)$': '<rootDir>/$1',
     '^expo$': '<rootDir>/__mocks__/expo.js',
     '^expo/(.*)$': '<rootDir>/__mocks__/expo.js',
   },
